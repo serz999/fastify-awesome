@@ -18,5 +18,8 @@
   "author": "",
   "license": "ISC",
   "keywords": [],
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "sequelize-cli": "^6.6.1"
+  }
 }
