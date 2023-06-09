@@ -1,3 +1,4 @@
+import { timeStamp } from 'console'
 import 'dotenv/config'
 import { Sequelize, DataTypes } from 'sequelize'
 
@@ -5,36 +6,41 @@ import { Sequelize, DataTypes } from 'sequelize'
 const URI: string = process.env['DB_URI']!
 const sequelize = new Sequelize(URI)
 
-const Book = sequelize.define(
-    'Book',
+const User = sequelize.define(
+    'User',
     {
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        page_count: {
-            type: DataTypes.INTEGER,
-            defaultValue: 0
-        }
-    }
+        id: { type: DataTypes.INTEGER, }, 
+        email: { type: DataTypes.STRING, unique: true },
+        phoneNumber: DataTypes.STRING,
+        firstName: DataTypes.STRING,
+        secondName: DataTypes.STRING,
+        age: DataTypes.INTEGER
+    },
+    { timestamps: false }
 )
 
-const generate10Items = async () => {
-    for (let i = 1; i < 11; i++) {
-        await Book.create({
-            name: `book #${i}`,
-            page_count: Math.round(Math.random() * 200)
-        })
-    }
-}
+const Product = sequelize.define(
+    'Product',
+    {
+        name: DataTypes.STRING,
+        price: DataTypes.DECIMAL
+    },
+    { timestamps: false }
+)
 
-const getItems = async () => {
-    const item = await Book.findOne()
-    console.log(item?.dataValues.name)
-}
+const Order = sequelize.define(
+    'Order',
+    {
+        totalPrice: DataTypes.DECIMAL,
+        isFinish: DataTypes.BOOLEAN
+    },
+    { timestamps: false }
+)
 
-const syncDB =  async () => {
-    await sequelize.sync({ alter: true })
-}
+User.hasMany(Order, { onDelete: 'CASCADE' })
+Order.belongsTo(User)
 
-getItems()
+Order.belongsToMany(Product, { through: 'OrderProducts' })
+Product.belongsToMany(Order, { through: 'OrderProducts' })
+
+export { User, Product, Order }

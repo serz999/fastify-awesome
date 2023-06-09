@@ -14,7 +14,7 @@ async function ordersRoute(fastify: FastifyInstance, options: Object) {
         // Some code
     })
 
-    fastify.delete('/app/orders',async (request, reply) => {
+    fastify.delete('/api/orders',async (request, reply) => {
         // Some code
     })
 }

@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import Fastify, { FastifyInstance } from 'fastify'
-import { goodsRoute } from './routes/goods'
+import { goodsRoute } from './routes/products'
 import { usersRoute } from './routes/users'
 import { ordersRoute } from './routes/orders'
 
