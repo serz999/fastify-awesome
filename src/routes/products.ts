@@ -1,16 +1,18 @@
 import { FastifyInstance } from "fastify";
-import { ProductController } from "../controllers/products";
+import productController from "../controllers/products"
+
 
 async function productsRoute(fastify: FastifyInstance, options: Object) {
-    const productController = new ProductController() 
 
-    fastify.get('/api/products', productController.get)
+    fastify.get('/api/products', productController.getAll.bind(productController))
 
-    fastify.post('/api/products', productController.add)
+    fastify.get('/api/products/:id', productController.getById.bind(productController))
+    
+    fastify.post('/api/products', productController.add.bind(productController))
 
-    fastify.patch('/api/products', productController.update)
+    fastify.patch('/api/products/:id', productController.update.bind(productController))
 
-    fastify.delete('/api/products', productController.delete)
+    fastify.delete('/api/products/:id', productController.delete.bind(productController))
 }
 
 export { productsRoute }

@@ -1,18 +1,19 @@
 import { FastifyInstance } from "fastify";
-import { UserController } from '../controllers/users'
-import { userValidateSchema } from "../schemas/users";
+import userController from "../controllers/users"
+import { getAllSchema, getByIdSchema, postSchema } from '../schemas/users'
 
 
 async function usersRoute(fastify: FastifyInstance, options: Object) {
-    const userController = new UserController()
+    
+    fastify.get('/api/users', getAllSchema, userController.getAll.bind(userController))
 
-    fastify.get('/api/users', userController.get)
+    fastify.get('/api/users/:id', getByIdSchema, userController.getById.bind(userController))
 
-    fastify.post('/api/users', userValidateSchema, userController.add)
+    fastify.post('/api/users', postSchema, userController.add.bind(userController))
 
-    fastify.patch('/api/users', userController.update)
+    fastify.patch('/api/users/:id', userController.update.bind(userController))
 
-    fastify.delete('/api/users', userController.delete)
+    fastify.delete('/api/users/:id', userController.delete.bind(userController))
 }
 
 export { usersRoute }

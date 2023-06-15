@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, ModelCtor } from 'sequelize'
 
 
 const URI: string = process.env['DB_URI']!

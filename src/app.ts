@@ -5,7 +5,7 @@ import { usersRoute } from './routes/users'
 import { ordersRoute } from './routes/orders'
 
 const fastify: FastifyInstance = Fastify({
-    logger: true
+    logger: false
 })
 
 const PORT: number = Number(process.env.PORT)!

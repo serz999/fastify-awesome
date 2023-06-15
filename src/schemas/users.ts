@@ -1,33 +1,57 @@
-const userValidateSchema = {
-    schema:{
-        body: {
-            type: 'object',
-            properties: {
-                email: { type: 'string' },
-                firstName: { type: 'string' },
-                secondName: { type: 'string' },
-                age: { type: 'number' }
-            },
-            required: ['firstName']
-        }
+const userTemplate = {
+    type: 'object',
+    properties: {
+        email: { type: 'string' },
+        phoneNumber: { type: 'string' },
+        firstName: { type: 'string' },
+        secondName: { type: 'string' },
+        age: { type: 'number' } 
     }
 }
 
-const userSerializeSchema = {
+const getAllSchema = {
     schema: {
         response: {
             200: {
                 type: 'object',
                 properties: {
-                    email: { type: 'string' },
-                    phone: { type: 'string' },
-                    firstName: { type: 'string' },
-                    secondName: { type: 'string' },
-                    age: { type: 'number' } 
+                    totalCount: { type: 'number' },
+                    objects: { 
+                        type: 'array',
+                        items: userTemplate
+                    }
                 }
             }
         }
+    },
+}
+
+const getByIdSchema = {
+    schema: { 
+        response: {
+            200: userTemplate
+        }, 
     }
 }
 
-export {userValidateSchema, userSerializeSchema}
+const postSchema = {
+    schema: {
+        body: {
+            type: 'object',
+            properties: {
+                email: { type: 'string' },
+                phoneNumber: { type: 'string' },
+                firstName: { type: 'string' },
+                secondName: { type: 'string' },
+                age: { type: 'number' }
+            },
+            required: ['email', 'firstName']
+        }, 
+        querystring: {
+            id: { type: 'number' }
+        },
+    }
+}
+
+
+export { getAllSchema, getByIdSchema, postSchema}

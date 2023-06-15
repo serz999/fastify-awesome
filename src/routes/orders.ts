@@ -1,16 +1,18 @@
 import { FastifyInstance } from "fastify";
-import { OrderController } from "../controllers/orders";
+import orderController from '../controllers/orders'
+
 
 async function ordersRoute(fastify: FastifyInstance, options: Object) {
-    const orderController = new OrderController() 
+
+    fastify.get('/api/orders', orderController.getAll.bind(orderController))
+
+    fastify.get('/api/orders/:id', orderController.getById.bind(orderController))
+
+    fastify.post('/api/orders/', orderController.add.bind(orderController))
     
-    fastify.get('/api/orders', orderController.get)
+    fastify.patch('/api/orders/:id', orderController.update.bind(orderController))
 
-    fastify.post('/api/orders', orderController.add)
-
-    fastify.patch('/api/orders', orderController.update)
-
-    fastify.delete('/api/orders', orderController.delete)
+    fastify.delete('/api/orders/:id', orderController.delete.bind(orderController))
 }
 
 export { ordersRoute }
