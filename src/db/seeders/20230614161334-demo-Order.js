@@ -1,6 +1,5 @@
 'use strict';
 
-const { randomInt } = require('crypto');
 const utils = require('../utils')
 
 /** @type {import('sequelize-cli').Migration} */
@@ -15,8 +14,8 @@ module.exports = {
     }))
     await queryInterface.bulkInsert('Order_Product', utils.generateObjects(50 * 5, () => {
       return {
-        OrderId: randomInt(1, 49),
-        ProductId: randomInt(1, 199)
+        OrderId: utils.randomInt(1, 49),
+        ProductId: utils.randomInt(1, 199)
       }
     }))
   },

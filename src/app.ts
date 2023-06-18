@@ -4,12 +4,12 @@ import { productsRoute } from './routes/products'
 import { usersRoute } from './routes/users'
 import { ordersRoute } from './routes/orders'
 
-const fastify: FastifyInstance = Fastify({
-    logger: false
-})
-
 const PORT: number = Number(process.env.PORT)!
 const HOST: string = process.env.HOST!
+
+const fastify: FastifyInstance = Fastify({
+    logger: process.env.LOGGER === 'true'
+})
 
 fastify.register(productsRoute)
 fastify.register(usersRoute)

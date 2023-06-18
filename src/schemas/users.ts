@@ -1,6 +1,7 @@
 const userTemplate = {
     type: 'object',
     properties: {
+        id: { type: 'number' },
         email: { type: 'string' },
         phoneNumber: { type: 'string' },
         firstName: { type: 'string' },

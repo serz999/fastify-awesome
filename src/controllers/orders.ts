@@ -1,4 +1,4 @@
-import { Order } from "../db/models/all-models";
+import { Order } from "../db/models";
 import { BaseController } from "./base-controller";
 
 

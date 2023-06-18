@@ -13,7 +13,7 @@ class BaseController implements CRUD {
     async add(request: Request , response: Response): Promise<Object> { 
         const body: any = request.body!
         const inst = await this.Model.create(body)
-        
+         
         return inst
     }
 

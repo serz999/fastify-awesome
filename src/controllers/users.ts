@@ -1,4 +1,4 @@
-import { User } from "../db/models/all-models";
+import { User } from "../db/models";
 import { BaseController } from "./base-controller";
 
 

@@ -1,4 +1,4 @@
-import { Product } from "../db/models/all-models";
+import { Product } from "../db/models";
 import { BaseController } from "./base-controller";
 
 
