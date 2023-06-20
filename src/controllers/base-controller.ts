@@ -1,5 +1,5 @@
 import { ModelStatic, Model } from "sequelize"
-import { CRUD, Request, Response, ObjectsWrapp} from "./types"
+import { CRUD, Request, Response, ObjectsWrapp, Auditable} from "./types"
 
 
 class BaseController implements CRUD {
@@ -62,7 +62,8 @@ class BaseController implements CRUD {
         await inst.destroy()
 
         return {}
-    }
+    } 
 }
+
 
 export { BaseController }

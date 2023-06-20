@@ -23,4 +23,9 @@ interface CRUD {
     delete(request: Request, response: Response): Promise<Object>
 }
 
-export { Request, Response, CRUD, ObjectsWrapp}
+interface Auditable {
+
+    getLog(request: Request , response: Response): Promise<Object>
+}
+
+export { Request, Response, CRUD, ObjectsWrapp, Auditable}

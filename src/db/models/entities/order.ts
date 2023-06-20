@@ -1,8 +1,20 @@
 import 'dotenv/config'
-import { Sequelize, DataTypes } from 'sequelize'
+import { Model } from 'sequelize'
+import { Sequelize, DataTypes, InferAttributes, InferCreationAttributes } from 'sequelize'
 
 
-const OrderAttrs: { [ key: string]: any } = {
+interface Order extends Model<InferAttributes<Order>, InferCreationAttributes<Order>> {
+    id: number
+    totalPrice: number
+    isFinish: boolean
+    UserId: number
+}
+
+interface OrderAudit extends Order, Model<InferAttributes<OrderAudit>, InferCreationAttributes<OrderAudit>> {
+    
+}
+
+const OrderAttrs: any = {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}, 
     totalPrice: DataTypes.DECIMAL,
     isFinish: DataTypes.BOOLEAN,
@@ -14,13 +26,7 @@ const OrderAttrs: { [ key: string]: any } = {
     } 
 }
 
-const OrderDefine = (sequelize: Sequelize) => sequelize.define(
-    'Order',
-    OrderAttrs, 
-    { timestamps: false, tableName: 'Order' }
-)
-
-const OrderAuditAttrs = { ...OrderAttrs }
+const OrderAuditAttrs: any = { ...OrderAttrs }
 OrderAuditAttrs.action = { type: DataTypes.STRING }
 OrderAuditAttrs.date = { type: DataTypes.DATE }
 OrderAuditAttrs.OrderId = {
@@ -29,6 +35,12 @@ OrderAuditAttrs.OrderId = {
     onDelete: 'CASCADE', 
     onUpdate: 'CASCADE'
 }
+
+const OrderDefine = (sequelize: Sequelize) => sequelize.define(
+    'Order',
+    OrderAttrs, 
+    { timestamps: false, tableName: 'Order' }
+)
 
 const OrderAuditDefine = (sequlize: Sequelize) => sequlize.define(
     'OrderAudit',

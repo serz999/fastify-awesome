@@ -1,20 +1,26 @@
 import 'dotenv/config'
-import { Sequelize, DataTypes} from 'sequelize'
+import { Sequelize, DataTypes, InferAttributes, InferCreationAttributes, Model} from 'sequelize'
 
 
-const ProductAttrs: { [key: string]: any } = {
+interface ProductModel extends Model<InferAttributes<ProductModel>, InferCreationAttributes<ProductModel>> {
+    id: number
+    name: string
+    price: number 
+}
+
+interface ProductAuditModel extends ProductModel {
+    action: string
+    date: Date 
+    UserId: number 
+}
+
+const ProductAttrs: any = {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: DataTypes.STRING,
     price: DataTypes.DECIMAL,
 }
 
-const ProductDefine = (sequelize: Sequelize) => sequelize.define(
-    'Product',
-    ProductAttrs,
-    { timestamps: false, tableName: 'Product' }
-)
-
-const ProductAuditAttrs = { ...ProductAttrs }
+const ProductAuditAttrs: any = { ...ProductAttrs }
 ProductAuditAttrs.action = { type: DataTypes.STRING }
 ProductAuditAttrs.date = { type: DataTypes.DATE }
 ProductAuditAttrs.ProductId = {
@@ -23,6 +29,13 @@ ProductAuditAttrs.ProductId = {
     onDelete: 'CASCADE', 
     onUpdate: 'CASCADE'
 }
+
+const ProductDefine = (sequelize: Sequelize) => sequelize.define(
+    'Product',
+    ProductAttrs,
+    { timestamps: false, tableName: 'Product' }
+)
+
 
 const ProductAuditDefine = (sequlize: Sequelize) => sequlize.define(
     'ProductAudit',

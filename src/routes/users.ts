@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import userController from "../controllers/users"
+import { userController } from "../controllers"
 import { getAllSchema, getByIdSchema, postSchema } from '../schemas/users'
 
 

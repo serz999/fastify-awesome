@@ -1,5 +1,5 @@
-import { FastifyInstance } from "fastify";
-import productController from "../controllers/products"
+import { FastifyInstance } from "fastify"
+import { productController } from "../controllers"
 
 
 async function productsRoute(fastify: FastifyInstance, options: Object) {
@@ -7,7 +7,7 @@ async function productsRoute(fastify: FastifyInstance, options: Object) {
     fastify.get('/api/products', productController.getAll.bind(productController))
 
     fastify.get('/api/products/:id', productController.getById.bind(productController))
-    
+ 
     fastify.post('/api/products', productController.add.bind(productController))
 
     fastify.patch('/api/products/:id', productController.update.bind(productController))

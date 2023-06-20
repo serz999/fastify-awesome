@@ -5,9 +5,9 @@ import * as models from '../models';
 export async function up(queryInterface: QueryInterface, Sequelize: any) {
   const t = await queryInterface.sequelize.transaction();
   try {
-    await queryInterface.createTable(models.User.name, models.UserAttrs, { transaction: t });
-    await queryInterface.createTable(models.Product.name, models.ProductAttrs ,{ transaction: t });
-    await queryInterface.createTable(models.Order.name, models.OrderAttrs, { transaction: t });
+    await queryInterface.createTable(models.User.name, models.User.getAttributes(), { transaction: t });
+    await queryInterface.createTable(models.Product.name, models.Product.getAttributes() ,{ transaction: t });
+    await queryInterface.createTable(models.Order.name, models.Order.getAttributes(), { transaction: t });
     await queryInterface.createTable('Order_Product', {
       OrderId: {
         type: DataTypes.INTEGER,
