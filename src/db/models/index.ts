@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize'
 import { OrderDefine, OrderAttrs, OrderAuditAttrs } from './entities/order'
 import { UserDefine, UserAttrs } from './entities/user'
 import { ProductDefine, ProductAttrs } from './entities/product'
-import { Audit } from './audit'
+import { ModelRevision } from './revision'
 
 
 const URI: string = process.env['DB_URI']!
@@ -22,10 +22,10 @@ Order.belongsToMany(Product, { through: 'Order_Product' })
 Product.belongsToMany(Order, { through: 'Order_Product' })
 
 // Audit instances
-const userAudit = new Audit(User, sequelize)
-const productAudit = new Audit(Product, sequelize)
-const orderAudit = new Audit(Order, sequelize)
+const userRevision = new ModelRevision(User, sequelize)
+const productRevision = new ModelRevision(Product, sequelize)
+const orderRevision = new ModelRevision(Order, sequelize)
 
 
 export { User, Product, Order }
-export { userAudit, productAudit, orderAudit }
+export { userRevision , productRevision , orderRevision }

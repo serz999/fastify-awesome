@@ -2,7 +2,7 @@ import { Sequelize } from "sequelize"
 import { ModelStatic, Model, DataTypes } from "sequelize"
 
 
-class Audit {
+class ModelRevision {
 
     public TargetModel: ModelStatic<Model<any, any>>
 
@@ -10,27 +10,29 @@ class Audit {
 
     public foreignKeyName: string 
 
-    constructor(targetModel: ModelStatic<Model<any, any>>, adapter: Sequelize) {
-        this.TargetModel = targetModel
+    constructor(TargetModel: ModelStatic<Model<any, any>>, adapter: Sequelize) {
+        this.TargetModel = TargetModel
+
         this.foreignKeyName = this.TargetModel.name + 'Id'
-        this.Model = this.defineAuditModel(adapter)
+        this.Model = this.defineRevisionModel(adapter)
+
         this.bindModels()
         this.registerHooks()
     }
 
-    private defineAuditModel(adapter: Sequelize): ModelStatic<Model<any, any>> {
-        const auditModelName: string = this.TargetModel.name + 'Audit'
+    private defineRevisionModel(adapter: Sequelize): ModelStatic<Model<any, any>> {
+        const revisionModelName: string = this.TargetModel.name + 'Revision'
 
-        const auditModelDefine = (sequelize: Sequelize) => sequelize.define(
-            auditModelName,
-            this.assemblyAuditModelAttrs(),
-            { timestamps: false, tableName: auditModelName}
+        const Model = adapter.define(
+            revisionModelName,
+            this.assemblyRevisionModelAttrs(),
+            { timestamps: false, tableName: revisionModelName}
         )
 
-        return auditModelDefine(adapter)
+        return Model
     } 
 
-    private assemblyAuditModelAttrs(): any {
+    private assemblyRevisionModelAttrs(): any {
         const TargetModelAttrs = this.TargetModel.getAttributes() 
 
         const ModelAttrs: any = { ...TargetModelAttrs }
@@ -44,7 +46,7 @@ class Audit {
         }
         ModelAttrs.action = { type: DataTypes.STRING }
         ModelAttrs.date = { type: DataTypes.DATE }
-        
+
         return ModelAttrs
     }
     
@@ -54,27 +56,28 @@ class Audit {
     }
 
     private registerHooks(): void { 
-        const registerCreateEval = async (inst: any) => await this.audit(inst, 'create')
+        const registerCreateEval = async (inst: any) => await this.makeRevision(inst, 'create')
         this.TargetModel.afterCreate(registerCreateEval.bind(this))
-        
-        const registerUpdateEval = async (inst: any) => await this.audit(inst, 'update')
+         
+        const registerUpdateEval = async (inst: any) => await this.makeRevision(inst, 'update')
         this.TargetModel.beforeUpdate(registerUpdateEval.bind(this))
-       
-        const registerDeleteEval = async (inst: any) => await this.audit(inst, 'delete')
+         
+        const registerDeleteEval = async (inst: any) => await this.makeRevision(inst, 'delete')
         this.TargetModel.beforeDestroy(registerDeleteEval.bind(this))
     }
 
-    private async audit(inst: any, action: string): Promise<void> {
+    private async makeRevision(inst: any, action: string): Promise<void> {
         const instData: any = await this.TargetModel.findByPk(inst.id)
         if (instData) {
-            const auditData = { ...instData.dataValues }
-            if (instData.id) delete auditData.id
-            auditData.date = Date.now()
-            auditData.action = action
-            auditData[this.foreignKeyName] = inst.id
-            await this.Model.create(auditData)
+            const revisionData = { ...instData.dataValues }
+            if (instData.id) delete revisionData.id
+            revisionData.date = Date.now()
+            revisionData.action = action
+            revisionData[this.foreignKeyName] = inst.id
+            await this.Model.create(revisionData)
         }
     }
 }
 
-export { Audit }
+
+export { ModelRevision }

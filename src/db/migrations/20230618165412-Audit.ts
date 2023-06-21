@@ -5,9 +5,9 @@ import * as models from '../models';
 export async function up(queryInterface: QueryInterface, Sequelize: any) {
   const t = await queryInterface.sequelize.transaction();
   try {
-    await queryInterface.createTable(models.userAudit.Model.name, models.userAudit.Model.getAttributes(), { transaction: t });
-    await queryInterface.createTable(models.productAudit.Model.name, models.productAudit.Model.getAttributes() ,{ transaction: t });
-    await queryInterface.createTable(models.orderAudit.Model.name, models.orderAudit.Model.getAttributes(), { transaction: t });
+    await queryInterface.createTable(models.userRevision.Model.name, models.userRevision.Model.getAttributes(), { transaction: t });
+    await queryInterface.createTable(models.productRevision.Model.name, models.productRevision.Model.getAttributes() ,{ transaction: t });
+    await queryInterface.createTable(models.orderRevision.Model.name, models.orderRevision.Model.getAttributes(), { transaction: t });
     await t.commit();
   } catch (err) {
     await t.rollback();
@@ -17,9 +17,9 @@ export async function up(queryInterface: QueryInterface, Sequelize: any) {
 export async function down(queryInterface: QueryInterface, Sequelize: any) {
   const t = await queryInterface.sequelize.transaction();
   try {
-    await queryInterface.dropTable(models.userAudit.Model.name, { cascade: true, transaction: t });
-    await queryInterface.dropTable(models.productAudit.Model.name, { cascade: true, transaction: t });
-    await queryInterface.dropTable(models.orderAudit.Model.name, { cascade: true, transaction: t });
+    await queryInterface.dropTable(models.userRevision.Model.name, { cascade: true, transaction: t });
+    await queryInterface.dropTable(models.productRevision.Model.name, { cascade: true, transaction: t });
+    await queryInterface.dropTable(models.orderRevision.Model.name, { cascade: true, transaction: t });
     await t.commit();
   } catch (err) {
     await t.rollback();
