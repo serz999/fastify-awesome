@@ -21,7 +21,7 @@ Order.belongsTo(User)
 Order.belongsToMany(Product, { through: 'Order_Product' })
 Product.belongsToMany(Order, { through: 'Order_Product' })
 
-// Audit init
+// Audit instances
 const userAudit = new Audit(User, sequelize)
 const productAudit = new Audit(Product, sequelize)
 const orderAudit = new Audit(Order, sequelize)

@@ -15,4 +15,5 @@ async function ordersRoute(fastify: FastifyInstance, options: Object) {
     fastify.delete('/api/orders/:id', orderController.delete.bind(orderController))
 }
 
+
 export { ordersRoute }

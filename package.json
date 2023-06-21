@@ -11,9 +11,13 @@
   "version": "1.0.0",
   "main": "dist/app.js",
   "scripts": {
+    "migrate": "./node_modules/.bin/sequelize-cli db:migrate",
+    "seed": "./node_modules/.bin/sequelize-cli db:seed:all",
+    "undoall": "./node_modules/.bin/sequelize-cli db:migrate:undo:all",
+    "rewritedb": "npm run undoall && npm run migrate && npm run seed",
+     
     "build": "./node_modules/.bin/tsc -b ./tsconfig.json",
-    "start": "npm run build && node ./dist/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm run build && node ./dist/app.js"
   },
   "author": "",
   "license": "ISC",

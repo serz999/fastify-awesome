@@ -12,8 +12,8 @@ class Audit {
 
     constructor(targetModel: ModelStatic<Model<any, any>>, adapter: Sequelize) {
         this.TargetModel = targetModel
-        this.Model = this.defineAuditModel(adapter)
         this.foreignKeyName = this.TargetModel.name + 'Id'
+        this.Model = this.defineAuditModel(adapter)
         this.bindModels()
         this.registerHooks()
     }
@@ -39,8 +39,8 @@ class Audit {
         ModelAttrs[this.foreignKeyName] = {
             type: DataTypes.INTEGER,
             references: { model: this.TargetModel.name, key: 'id'},
-            onDelete: 'CASCADE', 
-            onUpdate: 'CASCADE'
+            onDelete: 'RESTRICT',
+            onUpdate: 'RESTRICT' 
         }
         ModelAttrs.action = { type: DataTypes.STRING }
         ModelAttrs.date = { type: DataTypes.DATE }
@@ -54,18 +54,14 @@ class Audit {
     }
 
     private registerHooks(): void { 
-
-        this.TargetModel.afterCreate(async (inst: any) => {
-            await this.audit(inst, 'create')
-        })
+        const registerCreateEval = async (inst: any) => await this.audit(inst, 'create')
+        this.TargetModel.afterCreate(registerCreateEval.bind(this))
         
-        this.TargetModel.beforeUpdate(async (inst: any) => {
-            await this.audit(inst, 'update')
-        })
-        
-        this.TargetModel.beforeDestroy(async (inst: any) => {
-            await this.audit(inst, 'delete')
-        })
+        const registerUpdateEval = async (inst: any) => await this.audit(inst, 'update')
+        this.TargetModel.beforeUpdate(registerUpdateEval.bind(this))
+       
+        const registerDeleteEval = async (inst: any) => await this.audit(inst, 'delete')
+        this.TargetModel.beforeDestroy(registerDeleteEval.bind(this))
     }
 
     private async audit(inst: any, action: string): Promise<void> {
@@ -74,7 +70,7 @@ class Audit {
             const auditData = { ...instData.dataValues }
             if (instData.id) delete auditData.id
             auditData.date = Date.now()
-            auditData.action = action 
+            auditData.action = action
             auditData[this.foreignKeyName] = inst.id
             await this.Model.create(auditData)
         }
