@@ -10,6 +10,8 @@ class ModelRevision {
 
     public foreignKeyName: string 
 
+    private instDataBuff: any
+
     constructor(TargetModel: ModelStatic<Model<any, any>>, adapter: Sequelize) {
         this.TargetModel = TargetModel
 
@@ -41,8 +43,8 @@ class ModelRevision {
         ModelAttrs[this.foreignKeyName] = {
             type: DataTypes.INTEGER,
             references: { model: this.TargetModel.name, key: 'id'},
-            onDelete: 'RESTRICT',
-            onUpdate: 'RESTRICT' 
+            onDelete: 'SET NULL',
+            onUpdate: 'SET NULL' 
         }
         ModelAttrs.action = { type: DataTypes.STRING }
         ModelAttrs.date = { type: DataTypes.DATE }
@@ -56,26 +58,29 @@ class ModelRevision {
     }
 
     private registerHooks(): void { 
-        const registerCreateEval = async (inst: any) => await this.makeRevision(inst, 'create')
-        this.TargetModel.afterCreate(registerCreateEval.bind(this))
-         
-        const registerUpdateEval = async (inst: any) => await this.makeRevision(inst, 'update')
-        this.TargetModel.beforeUpdate(registerUpdateEval.bind(this))
-         
-        const registerDeleteEval = async (inst: any) => await this.makeRevision(inst, 'delete')
-        this.TargetModel.beforeDestroy(registerDeleteEval.bind(this))
+        this.TargetModel.afterCreate(async (inst: any) => {
+            this.instDataBuff = await this.TargetModel.findByPk(inst.id) 
+            await this.makeRevisionRecord('create')
+        })
+                
+        this.TargetModel.beforeUpdate(async (inst: any) => {
+            this.instDataBuff = await this.TargetModel.findByPk(inst.id) 
+        })
+        
+        this.TargetModel.beforeDestroy(async (inst: any) => { 
+            this.instDataBuff = await this.TargetModel.findByPk(inst.id) 
+            await this.makeRevisionRecord('delete')
+        })
     }
 
-    private async makeRevision(inst: any, action: string): Promise<void> {
-        const instData: any = await this.TargetModel.findByPk(inst.id)
-        if (instData) {
-            const revisionData = { ...instData.dataValues }
-            if (instData.id) delete revisionData.id
-            revisionData.date = Date.now()
-            revisionData.action = action
-            revisionData[this.foreignKeyName] = inst.id
-            await this.Model.create(revisionData)
-        }
+    private async makeRevisionRecord(action: string): Promise<void> {
+        const instData = this.instDataBuff
+        const revisionData = { ...instData.dataValues }
+        if (instData.id) delete revisionData.id
+        revisionData.date = Date.now()
+        revisionData.action = action
+        revisionData[this.foreignKeyName] = inst.id
+        await this.Model.create(revisionData)
     }
 }
 
