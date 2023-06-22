@@ -11,9 +11,8 @@ class BaseController implements CRUD {
     private Model: ModelStatic<Model<any, any>>
 
     async add(request: Request , response: Response): Promise<Object> { 
-        const body: any = request.body!
-        const inst = await this.Model.create(body)
-         
+        const inst = await this.Model.create(request.body) 
+
         return inst
     }
 
@@ -37,18 +36,23 @@ class BaseController implements CRUD {
         return inst
     }
 
-    async update(request: Request , response: Response): Promise<Object> {
-        const inst = await this.Model.findByPk(request.params.id)
+    async update(request: Request , response: Response): Promise<Object> { 
+        const updateStatus = await this.Model.update(request.body, {
+            where: {
+                id: request.params.id
+            }
+        })
 
-        if (!inst) {
+        const affectedCount: number = updateStatus[0]
+
+        if (affectedCount === 0) {
             response.code(404)
             return { message: `${this.Model.name} not found` }
         }
 
-        await inst.update(request.body)
-        await inst.save()
+        const inst: any = await this.Model.findByPk(request.params.id) 
 
-        return inst
+        return inst 
    }
 
     async delete(request: Request, response: Response): Promise<Object> {

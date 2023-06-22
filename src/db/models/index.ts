@@ -15,7 +15,7 @@ const Product = ProductDefine(sequelize)
 const Order = OrderDefine(sequelize)
 
 // Bind models
-User.hasMany(Order)
+User.hasMany(Order)   
 Order.belongsTo(User)
 
 Order.belongsToMany(Product, { through: 'Order_Product' })

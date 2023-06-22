@@ -2,6 +2,12 @@ import { Sequelize } from "sequelize"
 import { ModelStatic, Model, DataTypes } from "sequelize"
 
 
+enum AvailableActions {
+    CREATE = 'CREATE',
+    UPDATE = 'UPDATE',
+    DELETE = 'DELETE'
+}
+
 class ModelRevision {
 
     public TargetModel: ModelStatic<Model<any, any>>
@@ -9,8 +15,6 @@ class ModelRevision {
     public Model:  ModelStatic<Model<any, any>>
 
     public foreignKeyName: string 
-
-    private instDataBuff: any
 
     constructor(TargetModel: ModelStatic<Model<any, any>>, adapter: Sequelize) {
         this.TargetModel = TargetModel
@@ -21,6 +25,14 @@ class ModelRevision {
         this.bindModels()
         this.registerHooks()
     }
+
+    public stash(recordsCount: number = 1): void {}
+    
+    public pop(recordsCount: number = 1): void {}
+    
+    public popAll(): void {}
+
+    private stashStack: Array<any> = []
 
     private defineRevisionModel(adapter: Sequelize): ModelStatic<Model<any, any>> {
         const revisionModelName: string = this.TargetModel.name + 'Revision'
@@ -58,28 +70,28 @@ class ModelRevision {
     }
 
     private registerHooks(): void { 
-        this.TargetModel.afterCreate(async (inst: any) => {
-            this.instDataBuff = await this.TargetModel.findByPk(inst.id) 
-            await this.makeRevisionRecord('create')
+        this.TargetModel.afterCreate(async (inst: any) => { 
+            await this.makeRevisionRecord(inst, AvailableActions.CREATE)
         })
                 
-        this.TargetModel.beforeUpdate(async (inst: any) => {
-            this.instDataBuff = await this.TargetModel.findByPk(inst.id) 
+        this.TargetModel.beforeBulkUpdate(async (inst: any) => {
+            // here inst is with new data, why?
+            await this.makeRevisionRecord(inst, AvailableActions.UPDATE) 
         })
         
         this.TargetModel.beforeDestroy(async (inst: any) => { 
-            this.instDataBuff = await this.TargetModel.findByPk(inst.id) 
-            await this.makeRevisionRecord('delete')
+            await this.makeRevisionRecord(inst, AvailableActions.DELETE)
         })
     }
 
-    private async makeRevisionRecord(action: string): Promise<void> {
-        const instData = this.instDataBuff
-        const revisionData = { ...instData.dataValues }
-        if (instData.id) delete revisionData.id
+    private async makeRevisionRecord(inst: any, action: string): Promise<void> { 
+        console.log(inst) 
+        const revisionData = { ...inst.dataValues }
+        if (revisionData.id) delete revisionData.id
         revisionData.date = Date.now()
         revisionData.action = action
         revisionData[this.foreignKeyName] = inst.id
+        console.log(revisionData)
         await this.Model.create(revisionData)
     }
 }
