@@ -10,16 +10,16 @@ export async function up(queryInterface: QueryInterface, Sequelize: any) {
     await queryInterface.createTable(models.Order.name, models.Order.getAttributes(), { transaction: t });
     await queryInterface.createTable('Order_Product', {
       OrderId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         references: { model: 'Order', key: 'id' },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE'
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
       },
       ProductId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         references: { model: 'Product', key: 'id' },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE'
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
       }
     }, { transaction: t }
     );

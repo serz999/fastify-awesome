@@ -1,17 +1,20 @@
 'use strict';
 
 const utils = require('../utils')
+const { faker } = require('@faker-js/faker')
+
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) { 
    await queryInterface.bulkInsert('User', utils.generateObjects(100, () => {
     return {
-        email: utils.randomStirng(11) + '@some.site',
-        phoneNumber: '+0(000)000-00-00',
-        firstName: utils.randomStirng(10),
-        secondName: utils.randomStirng(10),
-        age: utils.randomInt(11, 55), 
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        phoneNumber: faker.phone.number(),
+        firstName: faker.person.firstName(),
+        secondName: faker.person.lastName(),
+        age: faker.number.int({min: 10, max: 70})
       }
     })
    )

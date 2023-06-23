@@ -15,19 +15,9 @@ interface ProductAuditModel extends ProductModel {
 }
 
 const ProductAttrs: any = {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
     name: DataTypes.STRING,
     price: DataTypes.DECIMAL,
-}
-
-const ProductAuditAttrs: any = { ...ProductAttrs }
-ProductAuditAttrs.action = { type: DataTypes.STRING }
-ProductAuditAttrs.date = { type: DataTypes.DATE }
-ProductAuditAttrs.ProductId = {
-    type: DataTypes.INTEGER,
-    references: { model: 'Product', key: 'id'},
-    onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE'
 }
 
 const ProductDefine = (sequelize: Sequelize) => sequelize.define(
@@ -37,10 +27,4 @@ const ProductDefine = (sequelize: Sequelize) => sequelize.define(
 )
 
 
-const ProductAuditDefine = (sequlize: Sequelize) => sequlize.define(
-    'ProductAudit',
-    ProductAuditAttrs,
-    { timestamps: false, tableName: 'ProductAudit' }
-)
-
-export { ProductAttrs, ProductDefine, ProductAuditAttrs, ProductAuditDefine }
+export { ProductAttrs, ProductDefine }

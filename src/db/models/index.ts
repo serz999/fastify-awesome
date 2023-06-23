@@ -1,8 +1,8 @@
 import 'dotenv/config'
 import { Sequelize } from 'sequelize'
-import { OrderDefine, OrderAttrs, OrderAuditAttrs } from './entities/order'
-import { UserDefine, UserAttrs } from './entities/user'
-import { ProductDefine, ProductAttrs } from './entities/product'
+import { OrderDefine } from './entities/order'
+import { UserDefine } from './entities/user'
+import { ProductDefine } from './entities/product'
 import { ModelRevision } from './revision'
 
 

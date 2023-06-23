@@ -2,10 +2,10 @@ import { Sequelize } from "sequelize"
 import { ModelStatic, Model, DataTypes } from "sequelize"
 
 
-enum AvailableActions {
-    CREATE = 'CREATE',
-    UPDATE = 'UPDATE',
-    DELETE = 'DELETE'
+enum States {
+    CREATED = 'CREATED',
+    UPDATED = 'UPDATED',
+    DELETED = 'DELETED'
 }
 
 class ModelRevision {
@@ -14,85 +14,143 @@ class ModelRevision {
 
     public Model:  ModelStatic<Model<any, any>>
 
-    public foreignKeyName: string 
+    public instUUIDFieldName: string 
+
+    public Stash: ModelStatic<Model<any, any>>
 
     constructor(TargetModel: ModelStatic<Model<any, any>>, adapter: Sequelize) {
         this.TargetModel = TargetModel
 
-        this.foreignKeyName = this.TargetModel.name + 'Id'
+        this.instUUIDFieldName = this.TargetModel.name + 'UUID'
         this.Model = this.defineRevisionModel(adapter)
+        this.Stash = this.defineStash(adapter)
 
-        this.bindModels()
         this.registerHooks()
     }
 
-    public stash(recordsCount: number = 1): void {}
-    
-    public pop(recordsCount: number = 1): void {}
-    
-    public popAll(): void {}
+    public async stash(recordsCount: number = 1): Promise<void> {
+        // ToDo transaction
+        const insts: Array<any> = await this.Model.findAll({ 
+            limit: recordsCount, 
+            order:['date', 'DESC'] 
+        })
 
-    private stashStack: Array<any> = []
+        for ( const inst of insts) {
+           // Logic 
+        }
+    }
+
+    public async stashTo(recordUUID: string): Promise<void> {
+        const stepsToRecord = NaN // ToDo function
+        this.stash(stepsToRecord)
+    }
+    
+    public async stashAll(): Promise<void> {
+        const stepsToRecord = await this.Model.count()  
+        this.stash(stepsToRecord) 
+    }
+
+    public async pop(recordsCount: number = 1): Promise<void> {
+        // ToDo transaction
+        const insts: Array<any> = await this.Stash.findAll({ 
+            limit: recordsCount, 
+            order:['date', 'DESC'] 
+        })
+
+        for ( const inst of insts) {
+
+        }
+    } 
+
+    public async popTo(recordUUID: string): Promise<void> {
+        const stepsToRecord = NaN // ToDo function
+        this.pop(stepsToRecord)
+    }
+    
+    public async popAll(): Promise<void> {
+        const stepsToRecord = await this.Stash.count()  
+        this.pop(stepsToRecord) 
+    }
 
     private defineRevisionModel(adapter: Sequelize): ModelStatic<Model<any, any>> {
         const revisionModelName: string = this.TargetModel.name + 'Revision'
 
         const Model = adapter.define(
             revisionModelName,
-            this.assemblyRevisionModelAttrs(),
+            this.assemblyRevisionAttrs(),
             { timestamps: false, tableName: revisionModelName}
         )
-
+     
         return Model
     } 
-
-    private assemblyRevisionModelAttrs(): any {
-        const TargetModelAttrs = this.TargetModel.getAttributes() 
-
-        const ModelAttrs: any = { ...TargetModelAttrs }
-
-        // Extend ModelAttrs
-        ModelAttrs[this.foreignKeyName] = {
-            type: DataTypes.INTEGER,
-            references: { model: this.TargetModel.name, key: 'id'},
-            onDelete: 'SET NULL',
-            onUpdate: 'SET NULL' 
-        }
-        ModelAttrs.action = { type: DataTypes.STRING }
+     
+    private assemblyRevisionAttrs(): any {
+        const TargetModelAttrs = this.TargetModel.getAttributes()  
+        const validTargetModelAttrs = this.prepareModelAttrs(TargetModelAttrs)
+         
+        const ModelAttrs: any = { ...validTargetModelAttrs } 
+        ModelAttrs[this.instUUIDFieldName] = { type: DataTypes.UUID }
+        ModelAttrs.state = { type: DataTypes.STRING }
         ModelAttrs.date = { type: DataTypes.DATE }
 
         return ModelAttrs
     }
-    
-    private bindModels(): void {
-        this.TargetModel.hasMany(this.Model)
-        this.Model.belongsTo(this.TargetModel)
+     
+    private prepareModelAttrs(modelAttrs: Object): Object {
+        const attrs: any = { ...modelAttrs }
+
+        for (const key in attrs) {
+            if (attrs[key].unique == true) delete attrs[key].unique
+        }
+
+        return attrs
+    }
+
+    private defineStash(adapter: Sequelize): ModelStatic<Model<any, any>> {
+        const modelName = this.Model.name + 'Stash'
+
+        const attrs: any = this.Model.getAttributes()
+
+        const Stash = adapter.define(
+            modelName,
+            attrs, 
+            { timestamps: false, tableName: modelName}
+        )
+
+        return Stash
     }
 
     private registerHooks(): void { 
         this.TargetModel.afterCreate(async (inst: any) => { 
-            await this.makeRevisionRecord(inst, AvailableActions.CREATE)
+            await this.makeRevisionRecord(inst, States.CREATED)
         })
                 
-        this.TargetModel.beforeBulkUpdate(async (inst: any) => {
-            // here inst is with new data, why?
-            await this.makeRevisionRecord(inst, AvailableActions.UPDATE) 
+        this.TargetModel.afterUpdate(async (inst: any) => {
+            await this.makeRevisionRecord(inst, States.UPDATED) 
         })
         
         this.TargetModel.beforeDestroy(async (inst: any) => { 
-            await this.makeRevisionRecord(inst, AvailableActions.DELETE)
+            await this.makeRevisionRecord(inst, States.DELETED)
         })
     }
 
-    private async makeRevisionRecord(inst: any, action: string): Promise<void> { 
+    private async makeRevisionRecord(inst: any, state: string): Promise<void> { 
         console.log(inst) 
-        const revisionData = { ...inst.dataValues }
-        if (revisionData.id) delete revisionData.id
+        const revisionData: any = this.prepareInstData(inst.dataValues)
+        
         revisionData.date = Date.now()
-        revisionData.action = action
-        revisionData[this.foreignKeyName] = inst.id
-        console.log(revisionData)
+        revisionData.state = state
+        revisionData[this.instUUIDFieldName] = inst.id
+
         await this.Model.create(revisionData)
+    } 
+
+    private prepareInstData(instData: Object): Object {
+        const data: any = {...instData}
+
+        if (data.id) delete data.id
+
+        return data
     }
 }
 

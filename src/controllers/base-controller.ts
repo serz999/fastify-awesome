@@ -37,20 +37,14 @@ class BaseController implements CRUD {
     }
 
     async update(request: Request , response: Response): Promise<Object> { 
-        const updateStatus = await this.Model.update(request.body, {
-            where: {
-                id: request.params.id
-            }
-        })
+        const inst: any = await this.Model.findByPk(request.params.id) 
 
-        const affectedCount: number = updateStatus[0]
-
-        if (affectedCount === 0) {
+        if (!inst) {
             response.code(404)
             return { message: `${this.Model.name} not found` }
         }
-
-        const inst: any = await this.Model.findByPk(request.params.id) 
+        
+        inst.update(request.body)
 
         return inst 
    }

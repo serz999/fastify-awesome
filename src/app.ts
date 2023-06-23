@@ -15,7 +15,7 @@ fastify.register(productsRoute)
 fastify.register(usersRoute)
 fastify.register(ordersRoute)
 
-const start = async () => {
+const runServer = async () => {
     try {
         await fastify.listen({ port: PORT, host: HOST })
     } catch (err) {
@@ -23,4 +23,5 @@ const start = async () => {
         process.exit(1)
     }
 }
-start()
+
+runServer()

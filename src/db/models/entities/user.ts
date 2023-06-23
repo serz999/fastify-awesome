@@ -12,7 +12,7 @@ interface UserModel extends Model<InferAttributes<UserModel>, InferCreationAttri
 }
 
 const UserAttrs: any = {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}, 
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true }, 
     email: { type: DataTypes.STRING, unique: true },
     phoneNumber: DataTypes.STRING,
     firstName: DataTypes.STRING,

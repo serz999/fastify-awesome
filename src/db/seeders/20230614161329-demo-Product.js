@@ -1,14 +1,17 @@
 'use strict';
 
 const utils = require('../utils')
+const { faker } = require('@faker-js/faker')
+
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert('Product', utils.generateObjects(200, () => {
       return {
-        name: utils.randomStirng(20),
-        price: utils.randomInt(1000, 100000)
+        id: faker.string.uuid(),
+        name: faker.commerce.product(),
+        price: faker.commerce.price() 
       }
     }))
   },

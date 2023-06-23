@@ -15,25 +15,15 @@ interface OrderAudit extends Order, Model<InferAttributes<OrderAudit>, InferCrea
 }
 
 const OrderAttrs: any = {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}, 
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true }, 
     totalPrice: DataTypes.DECIMAL,
     isFinish: DataTypes.BOOLEAN,
     UserId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID, 
         references: { model: 'User', key: 'id'},
-        onDelete: 'CASCADE', 
-        onUpdate: 'CASCADE'
+        onDelete: 'SET NULL', 
+        onUpdate: 'SET NULL'
     } 
-}
-
-const OrderAuditAttrs: any = { ...OrderAttrs }
-OrderAuditAttrs.action = { type: DataTypes.STRING }
-OrderAuditAttrs.date = { type: DataTypes.DATE }
-OrderAuditAttrs.OrderId = {
-    type: DataTypes.INTEGER,
-    references: { model: 'Order', key: 'id'},
-    onDelete: 'CASCADE', 
-    onUpdate: 'CASCADE'
 }
 
 const OrderDefine = (sequelize: Sequelize) => sequelize.define(
@@ -42,10 +32,5 @@ const OrderDefine = (sequelize: Sequelize) => sequelize.define(
     { timestamps: false, tableName: 'Order' }
 )
 
-const OrderAuditDefine = (sequlize: Sequelize) => sequlize.define(
-    'OrderAudit',
-    OrderAuditAttrs,
-    { timestamps: false, tableName: 'OrderAudit' }
-)
 
-export { OrderAttrs, OrderDefine , OrderAuditAttrs, OrderAuditDefine }
+export { OrderAttrs, OrderDefine }
