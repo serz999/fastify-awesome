@@ -1,26 +1,16 @@
 const fastify = require('fastify')({logger: true})
-const boom = require('boom');
-fastify.register(require('fastify'),{
-    secret: process.env.JWT_SECRE
-})
+require('dotenv').config();
+fastify.register(require("@fastify/jwt"), {
+    secret: process.env.JWT_SECRET
+  })
 
-fastify.addContentTypeParser('application/json',{parseAs: 'string'},(req, body, done)=>{
-    try {
-        const json = JSON.parse(body);
-        done(null,json);
-    } catch (err){
-        err.statusCode = 400;
-        done(err, undefined);
-    }
-});
-//stop here
-fastify.register(require('./16:52'))
 
-fastify.post('/insertData', async (req, res)=>{
-    try {
-        let{params} = req.body;
-        res.status(200).send({msg: "resied data"});
-    } catch (error) {
-        throw boom.boomify(error)
-    }
+fastify.register(require('./middleware/auth_middleware.js'));
+fastify.register(require('./router/signin.js'));
+fastify.register(require('./router/signup.js'));
+fastify.register(require('./router/verify.js'));
+
+
+fastify.listen({port: 8070}, err => {
+    if (err) throw err
 })
