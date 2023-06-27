@@ -4,20 +4,24 @@ import { Sequelize, DataTypes, Model, CreationOptional, InferAttributes, InferCr
 
 interface UserModel extends Model<InferAttributes<UserModel>, InferCreationAttributes<UserModel>> {
     id: CreationOptional<number>;
-    email: string;
-    phoneNumber: string;
-    firstName: string;
-    secondName: string;
-    age: number;
+    user_email: string;
+    user_phoneNumber: string;
+    user_firstName: string;
+    user_secondName: string;
+    user_age: number;
+    user_user_name: string;
+    user_password: string;
 }
 
 const UserAttrs: any = {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}, 
-    email: { type: DataTypes.STRING, unique: true },
-    phoneNumber: DataTypes.STRING,
-    firstName: DataTypes.STRING,
-    secondName: DataTypes.STRING,
-    age: DataTypes.INTEGER
+    user_email: { type: DataTypes.STRING, unique: true },
+    user_phoneNumber: DataTypes.STRING,
+    user_firstName: DataTypes.STRING,
+    user_secondName: DataTypes.STRING,
+    user_age: DataTypes.INTEGER,
+    user_name: DataTypes.STRING,
+    user_password: DataTypes.STRING
 }
 
 const UserDefine = (sequelize: Sequelize) => sequelize.define(

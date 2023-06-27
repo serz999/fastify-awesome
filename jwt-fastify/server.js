@@ -4,7 +4,6 @@ fastify.register(require("@fastify/jwt"), {
     secret: process.env.JWT_SECRET
   })
 
-
 fastify.register(require('./middleware/auth_middleware.js'));
 fastify.register(require('./router/signin.js'));
 fastify.register(require('./router/signup.js'));
