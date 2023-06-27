@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Docker DB",
+      "Group": "Servers",
+      "Host": "localdatabase",
+      "Port": 5432,
+      "MaintenanceDB": "testdb",
+      "Username": "postgres",
+      "PassFile": "/pgpass",
+      "SSLMode": "prefer"
+    }
+  }
+}

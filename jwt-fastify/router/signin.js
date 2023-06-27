@@ -1,14 +1,7 @@
 'use strict'
 require('dotenv').config();
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize(
-    process.env.POSTGRES_DB,
-    process.env.POSTGRES_USER,
-    process.env.POSTGRES_PASSWORD,
-     {
-         dialect: 'postgres',
-     }
- );
+const sequelize = new Sequelize('postgres://'+process.env.POSTGRES_USER+':'+process.env.POSTGRES_PASSWORD+'@'+process.env.POSTGRES_HOST+':'+process.env.POSTGRES_PORT+'/'+process.env.POSTGRES_DB);
 module.exports = async function (fastify){
     fastify.post('/signin', async (req, res)=>{
         try {

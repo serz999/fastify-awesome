@@ -9,7 +9,16 @@ fastify.register(require('./router/signin.js'));
 fastify.register(require('./router/signup.js'));
 fastify.register(require('./router/verify.js'));
 
-
-fastify.listen({port: 8070}, err => {
-    if (err) throw err
+fastify.get('/', async (request, reply) => {
+  return { hello: 'world' }
 })
+
+const start = async () => {
+  try {
+    await fastify.listen({ host: '0.0.0.0', port: 4000 })
+  } catch (err) {
+    fastify.log.error(err)
+    process.exit(1)
+  }
+}
+start()

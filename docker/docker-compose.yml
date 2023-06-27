@@ -1,0 +1,64 @@
+services:
+
+  JWT:
+    image: jwt-image:latest
+    container_name: jwt-container
+    ports:
+      - 5000:4000
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST=localdatabase
+      - POSTGRES_PORT=5432
+    networks:
+      - default
+    links:
+      - postgreSQL-DB
+
+  Migration:
+    image: migration-image:latest
+    container_name: migration-contaier
+    ports:
+      - 5001:3000
+    environment:
+      - DB_HOST=localdatabase
+      - DB_URI=postgresql://postgres:1@localdatabase:5432/testdb
+    networks:
+      - default
+    links:
+      - postgreSQL-DB
+
+  postgreSQL-DB:
+    image: postgres:alpine3.18
+    container_name: localdatabase
+    expose:
+      - 5432
+    ports:
+      - 5002:5432
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=testdb
+      - POSTGRES_PASSWORD=1
+      - POSTGRES_USER=postgres
+
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@pgadmin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    volumes:
+       - ./servers.json:/pgadmin4/servers.json
+       - ./pgpass:/pgpass
+    links:
+      - postgreSQL-DB
+
+networks:
+  default:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.24.0.0/16
