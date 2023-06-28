@@ -29,14 +29,30 @@ class ModelRevision {
     }
 
     public async stash(recordsCount: number = 1): Promise<void> {
-        // ToDo transaction
-        const insts: Array<any> = await this.Model.findAll({ 
+        const records: Array<any> = await this.Model.findAll({ 
             limit: recordsCount, 
             order:['date', 'DESC'] 
         })
 
-        for ( const inst of insts) {
-           // Logic 
+        for (const record of records) {
+            const uuid = record.instUUIDFieldName
+
+            if (record.state == States.CREATED) {
+                const inst: any = await this.TargetModel.findByPk(uuid)          
+                inst.destroy()
+
+                this.Stash.create(record.dataValues)                
+
+            } else if (record.state == States.DELETED) {
+                const data: any = this.transformToInstAttrs(record.dataValues)
+                await this.Model.create(data)
+
+                this.Stash.create(record.dataValues)
+
+            } else if (record.state == States.UPDATED) { 
+
+                this.Stash.create(record.dataValues)
+            }
         }
     }
 
@@ -95,7 +111,19 @@ class ModelRevision {
 
         return ModelAttrs
     }
-     
+    
+    private transformToInstAttrs(recordAttrs: any): Object {
+        const attrs = { ...recordAttrs }
+
+        delete attrs.state
+        delete attrs.date
+
+        attrs.id = attrs[this.instUUIDFieldName]
+        delete attrs[this.instUUIDFieldName]
+
+        return attrs
+    }     
+
     private prepareModelAttrs(modelAttrs: Object): Object {
         const attrs: any = { ...modelAttrs }
 

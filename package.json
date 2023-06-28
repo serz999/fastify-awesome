@@ -14,7 +14,7 @@
     "migrate": "./node_modules/.bin/sequelize-cli db:migrate",
     "seed": "./node_modules/.bin/sequelize-cli db:seed:all",
     "undoall": "./node_modules/.bin/sequelize-cli db:migrate:undo:all",
-    "rewritedb": "npm run undoall && npm run migrate && npm run seed",
+    "rewritedb": "npm run build && npm run undoall && npm run migrate && npm run seed",
     "build": "./node_modules/.bin/tsc -b ./tsconfig.json",
     "start": "npm run build && node ./dist/app.js",
     "test": "mocha './src/**/*.test.js'"
