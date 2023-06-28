@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p tsconfig.json",
     "start": "node server.js",
-    "st": "fastify start -l info server.js"
+    "tsc:w": "tsc -w"
   },
   "keywords": [],
   "author": "",
@@ -22,5 +22,9 @@
     "pg-promise": "^11.5.0",
     "sequelize-fastify": "^2.0.0"
   },
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^20.3.2",
+    "typescript": "^5.1.5"
+  }
 }

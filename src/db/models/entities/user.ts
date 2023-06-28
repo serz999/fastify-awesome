@@ -9,7 +9,7 @@ interface UserModel extends Model<InferAttributes<UserModel>, InferCreationAttri
     user_firstName: string;
     user_secondName: string;
     user_age: number;
-    user_user_name: string;
+    user_name: string;
     user_password: string;
 }
 
@@ -30,4 +30,4 @@ const UserDefine = (sequelize: Sequelize) => sequelize.define(
     { timestamps: false, tableName: 'User' }
 )
 
-export { UserAttrs, UserDefine }
+export { UserAttrs, UserDefine, UserModel}
