@@ -35,23 +35,43 @@ class ModelRevision {
         })
 
         for (const record of records) {
-            const uuid = record.instUUIDFieldName
+            const targetObjUUID = record.instUUIDFieldName
 
             if (record.state == States.CREATED) {
-                const inst: any = await this.TargetModel.findByPk(uuid)          
-                inst.destroy()
+                const inst: any = await this.TargetModel.findByPk(targetObjUUID)          
+                await inst.destroy()
 
-                this.Stash.create(record.dataValues)                
+                // Is need to disable hooks 
+                const stash_record: any = await this.Model.findOne({ order:['date', 'DESC'] })
+                await stash_record.destroy()
+
+                await this.Stash.create(record.dataValues)             
+                await record.destroy()
 
             } else if (record.state == States.DELETED) {
                 const data: any = this.transformToInstAttrs(record.dataValues)
-                await this.Model.create(data)
+                await this.TargetModel.create(data)                
 
-                this.Stash.create(record.dataValues)
+                // Is need to disable hooks 
+                const stash_record: any = await this.Model.findOne({ order:['date', 'DESC'] })
+                await stash_record.destroy()
+
+                await this.Stash.create(record.dataValues)
+                await record.destroy()
 
             } else if (record.state == States.UPDATED) { 
+                await this.Stash.create(record.dataValues)
+                const recordData = record.dataValues
+                await record.destroy()
 
-                this.Stash.create(record.dataValues)
+                const latestRecord: any = await this.Model.findOne({ 
+                    where: { 
+                        [this.instUUIDFieldName]: targetObjUUID, 
+                        order: ['date', 'DESC']
+                    } 
+                }) 
+                const inst: any = await this.TargetModel.findByPk(targetObjUUID)
+                await inst.update(latestRecord.dataValues) 
             }
         }
     }
@@ -67,15 +87,12 @@ class ModelRevision {
     }
 
     public async pop(recordsCount: number = 1): Promise<void> {
-        // ToDo transaction
         const insts: Array<any> = await this.Stash.findAll({ 
             limit: recordsCount, 
             order:['date', 'DESC'] 
         })
 
-        for ( const inst of insts) {
-
-        }
+        for ( const inst of insts) {}
     } 
 
     public async popTo(recordUUID: string): Promise<void> {
@@ -165,11 +182,11 @@ class ModelRevision {
     private async makeRevisionRecord(inst: any, state: string): Promise<void> { 
         console.log(inst) 
         const revisionData: any = this.prepareInstData(inst.dataValues)
-        
+
         revisionData.date = Date.now()
         revisionData.state = state
         revisionData[this.instUUIDFieldName] = inst.id
-
+         
         await this.Model.create(revisionData)
     } 
 

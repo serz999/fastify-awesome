@@ -26,6 +26,7 @@ const userRevision = new ModelRevision(User, sequelize)
 const productRevision = new ModelRevision(Product, sequelize)
 const orderRevision = new ModelRevision(Order, sequelize)
 
+userRevision.pop()
 
 export { User, Product, Order }
 export { userRevision , productRevision , orderRevision }

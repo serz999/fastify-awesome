@@ -44,7 +44,7 @@ class BaseController implements CRUD {
             return { message: `${this.Model.name} not found` }
         }
         
-        inst.update(request.body)
+        await inst.update(request.body)
 
         return inst 
    }
