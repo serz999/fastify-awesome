@@ -29,49 +29,54 @@ class ModelRevision {
     }
 
     public async stash(recordsCount: number = 1): Promise<void> {
+         
         const records: Array<any> = await this.Model.findAll({ 
             limit: recordsCount, 
-            order:['date', 'DESC'] 
+            order: [['date', 'DESC']] 
         })
-
+         
         for (const record of records) {
-            const targetObjUUID = record.instUUIDFieldName
+            const targetObjUUID = record[this.instUUIDFieldName]
 
-            if (record.state == States.CREATED) {
-                const inst: any = await this.TargetModel.findByPk(targetObjUUID)          
+            if (record.state === States.CREATED) {
+                const inst: any = await this.TargetModel.findByPk(targetObjUUID) 
                 await inst.destroy()
-
+                 
                 // Is need to disable hooks 
-                const stash_record: any = await this.Model.findOne({ order:['date', 'DESC'] })
+                const stash_record: any = await this.Model.findOne({ order: [['date', 'DESC']] })
                 await stash_record.destroy()
-
+                 
                 await this.Stash.create(record.dataValues)             
                 await record.destroy()
 
-            } else if (record.state == States.DELETED) {
+            } else if (record.state === States.DELETED) {
                 const data: any = this.transformToInstAttrs(record.dataValues)
                 await this.TargetModel.create(data)                
 
                 // Is need to disable hooks 
-                const stash_record: any = await this.Model.findOne({ order:['date', 'DESC'] })
+                const stash_record: any = await this.Model.findOne({ order: [['date', 'DESC']] })
                 await stash_record.destroy()
 
                 await this.Stash.create(record.dataValues)
                 await record.destroy()
 
-            } else if (record.state == States.UPDATED) { 
+            } else if (record.state === States.UPDATED) { 
                 await this.Stash.create(record.dataValues)
-                const recordData = record.dataValues
                 await record.destroy()
 
                 const latestRecord: any = await this.Model.findOne({ 
                     where: { 
                         [this.instUUIDFieldName]: targetObjUUID, 
-                        order: ['date', 'DESC']
-                    } 
+                    },
+                    order: [['date', 'DESC']]
                 }) 
+
                 const inst: any = await this.TargetModel.findByPk(targetObjUUID)
                 await inst.update(latestRecord.dataValues) 
+
+                // Is need to disable hooks 
+                const stash_record: any = await this.Model.findOne({ order: [['date', 'DESC']] })
+                await stash_record.destroy()
             }
         }
     }
@@ -89,7 +94,7 @@ class ModelRevision {
     public async pop(recordsCount: number = 1): Promise<void> {
         const insts: Array<any> = await this.Stash.findAll({ 
             limit: recordsCount, 
-            order:['date', 'DESC'] 
+            order: [['date', 'DESC']]
         })
 
         for ( const inst of insts) {}
@@ -101,8 +106,8 @@ class ModelRevision {
     }
     
     public async popAll(): Promise<void> {
-        const stepsToRecord = await this.Stash.count()  
-        this.pop(stepsToRecord) 
+        const stepsToRecord = await this.Stash.count()
+        this.pop(stepsToRecord)
     }
 
     private defineRevisionModel(adapter: Sequelize): ModelStatic<Model<any, any>> {
@@ -180,7 +185,6 @@ class ModelRevision {
     }
 
     private async makeRevisionRecord(inst: any, state: string): Promise<void> { 
-        console.log(inst) 
         const revisionData: any = this.prepareInstData(inst.dataValues)
 
         revisionData.date = Date.now()
