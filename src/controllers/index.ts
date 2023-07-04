@@ -1,7 +1,10 @@
-import { BaseController } from "./base-controller";
-import orderController from  "./entities/orders"
-import userController from "./entities/users"
-import productController from "./entities/products"
+import * as models from "../db/models";
+import { BaseController } from "./base/base.controller";
+
+
+const productController = new BaseController(models.Product) 
+const userController = new BaseController(models.User) 
+const orderController = new BaseController(models.Order) 
 
 
 export { productController, userController, orderController } 

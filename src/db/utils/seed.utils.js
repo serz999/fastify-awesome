@@ -1,4 +1,4 @@
-exports.randomStirng = (length) => Math.random().toString(36).substring(2, length)  
+exports.randomString = (length) => Math.random().toString(36).substring(2, length)  
 
 exports.randomInt = (min, max) => Math.random() * (max - min) + min
 

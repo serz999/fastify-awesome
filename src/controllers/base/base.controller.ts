@@ -1,5 +1,5 @@
 import { ModelStatic, Model } from "sequelize"
-import { CRUD, Request, Response, ObjectsWrapp, Auditable} from "./types"
+import { CRUD, Request, Response, ObjectsWrapp, Auditable} from "../../types/base/base.controller.types"
 
 
 class BaseController implements CRUD {

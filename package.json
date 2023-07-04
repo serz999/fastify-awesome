@@ -17,7 +17,7 @@
     "rewritedb": "npm run build && npm run undoall && npm run migrate && npm run seed",
     "build": "./node_modules/.bin/tsc -b ./tsconfig.json",
     "start": "npm run build && node ./dist/app.js",
-    "test": "mocha './src/**/*.test.js'"
+    "test": "mocha './dist/**/*.test.js'"
   },
   "author": "",
   "license": "ISC",
@@ -25,8 +25,11 @@
   "description": "",
   "devDependencies": {
     "@faker-js/faker": "^8.0.2",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
     "@types/node": "^20.3.1",
     "@types/sequelize": "^4.28.15",
+    "@types/sinon": "^10.0.15",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
     "sequelize-cli": "^5.3.0",
