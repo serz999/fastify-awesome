@@ -1,0 +1,10 @@
+groups:
+- name: example
+  rules:
+  - alert: MetricValueChanged
+    expr: changes(pg_number_of_users_count{server="localdatabase:5432"}[2m]) != 0
+    for: 1m
+    labels:
+      severity: 'critical'
+    annotations:
+      summary: "Metric value has changed"

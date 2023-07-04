@@ -1,0 +1,26 @@
+global:
+  resolve_timeout: 1m
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'email_notifications'
+receivers:
+  - name: 'email_notifications'
+    email_configs:
+    - to: testzelyakov@gmail.com
+      from: testzelyakov@gmail.com
+      smarthost: smtp.gmail.com:587
+      auth_username: testzelyakov@gmail.com
+      auth_identity: testzelyakov@gmail.com
+      auth_password: ioadfdyuymqlphxq
+      send_resolved: true
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']

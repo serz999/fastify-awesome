@@ -32,7 +32,6 @@ fastify.register(require('./middleware/auth_middleware.js'));
 fastify.register(require('./router/signin.js'));
 fastify.register(require('./router/signup.js'));
 fastify.register(require('./router/verify.js'));
-fastify.register(require('./router/dbUser.js'));
 
 fastify.get('/', async (request: any, reply: any) => {
   return { hello: 'world' }

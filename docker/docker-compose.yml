@@ -71,6 +71,21 @@ services:
       TZ: "Europe/Moscow"
     networks:
       - default
+    depends_on:
+      - exporter
+
+  alertmanager:
+    image: prom/alertmanager:v0.12.0
+    ports:
+      - 9093:9093
+    volumes:
+      - ./alertmanager/:/etc/alertmanager/
+    restart: always
+    command:
+      - '-config.file=/etc/alertmanager/alertmanager.yml'
+      - '-storage.path=/alertmanager'
+    deploy:
+      mode: global
 
   exporter:
     image: wrouesnel/postgres_exporter
