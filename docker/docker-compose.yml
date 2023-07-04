@@ -56,6 +56,58 @@ services:
     links:
       - postgreSQL-DB
 
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus:/etc/prometheus/
+    container_name: prometheus
+    hostname: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - 5003:9090
+    restart: unless-stopped
+    environment:
+      TZ: "Europe/Moscow"
+    networks:
+      - default
+
+  exporter:
+    image: wrouesnel/postgres_exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:1@localdatabase:5432/testdb?sslmode=disable"
+      PG_EXPORTER_EXTEND_QUERY_PATH: "/var/query.yml"
+    ports:
+      - "9187:9187"
+    restart: unless-stopped  
+    volumes:
+       - ./postgres_exporter.yml
+       - ./:/var
+    networks:
+      - default
+    depends_on:
+      - postgreSQL-DB
+
+  grafana:
+    image: grafana/grafana
+    user: root
+    depends_on:
+      - prometheus
+    ports:
+      - 5005:3000
+    volumes:
+      - ./grafana:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    container_name: grafana
+    hostname: grafana
+    restart: unless-stopped
+    environment:
+      TZ: "Europe/Moscow"
+    networks:
+      - default
+    links:
+      - "Migration"
+
 networks:
   default:
     ipam:

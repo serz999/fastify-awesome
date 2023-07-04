@@ -1,0 +1,4 @@
+pg_number_of_users:
+  cache_seconds: 30
+  query: 'SELECT COUNT (*) FROM "User"'
+  

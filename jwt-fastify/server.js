@@ -1,17 +1,27 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fastify = exports.seq = void 0;
+exports.bcrypt = exports.fastify = exports.seq = void 0;
 const fastify = require('fastify')({ logger: true });
 exports.fastify = fastify;
+const bcrypt = require("bcrypt");
+exports.bcrypt = bcrypt;
+const metricsPlugin = require('fastify-metrics');
+fastify.register(metricsPlugin, metricsPlugin, {
+    endpoint: '/metrics',
+    routeMetrics: {
+        overrides: {
+            histogram: {
+                name: 'my_custom_http_request_duration_seconds',
+                buckets: [0.1, 0.5, 1, 3, 5],
+            },
+            summary: {
+                help: 'custom request duration in seconds summary help',
+                labelNames: ['status_code', 'method', 'route'],
+                percentiles: [0.5, 0.75, 0.9, 0.95, 0.99],
+            },
+        },
+    },
+});
 require('dotenv').config();
 fastify.register(require("@fastify/jwt"), {
     secret: process.env.JWT_SECRET
@@ -23,16 +33,17 @@ fastify.register(require('./middleware/auth_middleware.js'));
 fastify.register(require('./router/signin.js'));
 fastify.register(require('./router/signup.js'));
 fastify.register(require('./router/verify.js'));
-fastify.get('/', (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
+fastify.register(require('./router/dbUser.js'));
+fastify.get('/', async (request, reply) => {
     return { hello: 'world' };
-}));
-const start = () => __awaiter(void 0, void 0, void 0, function* () {
+});
+const start = async () => {
     try {
-        yield fastify.listen({ host: '0.0.0.0', port: 4000 });
+        await fastify.listen({ host: '0.0.0.0', port: 4000 });
     }
     catch (err) {
         fastify.log.error(err);
         process.exit(1);
     }
-});
+};
 start();
