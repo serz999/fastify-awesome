@@ -9,8 +9,18 @@ enum States {
 }
 
 interface vscOpts {
-    context?: string | Array<string>
-    recordsCount?: number
+    instsUUIDs?: string | Array<string>
+    revisionsCount?: number
+}
+
+interface goToVscOpts {
+    instsUUIDs?: string | Array<string>
+    revisionUUID?: string
+}
+
+interface broadcastVscOpts {
+    instsUUIDs?: string | Array<string>
+    revisionUUID?: string
 }
 
 export class ModelRevision {
@@ -23,138 +33,152 @@ export class ModelRevision {
 
     public Stash: ModelStatic<Model<any, any>>
 
-    constructor(TargetModel: ModelStatic<Model<any, any>>, adapter: Sequelize) {
+    constructor(TargetModel: ModelStatic<Model<any, any>>, sequelize: Sequelize) {
         this.TargetModel = TargetModel
 
         this.instUUIDFieldName = this.TargetModel.name + 'UUID'
-        this.Model = this.defineRevisionModel(adapter)
-        this.Stash = this.defineStash(adapter)
-
+        this.Model = this.defineRevisionModel(sequelize)
+        this.Stash = this.defineStash(sequelize)
+        
         this.registerHooks()
     }
 
     public async stash(opts: vscOpts): Promise<void> {
-        const recordsCount = opts.recordsCount || 1 
-        const context = opts.context || 'all' 
-        
-        let records: Array<any> = []
+        const revisionsCount = opts.revisionsCount || 1 
+        const instsUUIDs = opts.instsUUIDs || 'common context'
 
-        if (context === 'all') {
-            records = await this.Model.findAll({ 
-                limit: recordsCount, 
+        const contexts: Array<Array<any>> = []
+         
+        if (instsUUIDs === 'common context') {
+            contexts[0] = await this.Model.findAll({ 
+                limit: revisionsCount, 
                 order: [['date', 'DESC']] 
             })
         } else {
-            for (const uuid of context) {
-                const buff = await this.Model.findAll({
-                    limit: recordsCount, 
+            for (const instUUID of instsUUIDs) {
+                const context = await this.Model.findAll({
+                    limit: revisionsCount, 
                     order: [['date', 'DESC']],
                     where: {
-                        [this.instUUIDFieldName]: uuid
+                        [this.instUUIDFieldName]: instUUID
                     }
                 })
-                records = records.concat(buff)
+                contexts.push(context)
             }
        }
-         
-        for (const record of records) {
-            const targetObjUUID = record[this.instUUIDFieldName]
+        for (const context of contexts) {
+            for (const revision of context) {
+                const instUUID = revision[this.instUUIDFieldName]
+                 
+                if (revision.state === States.CREATED) {
+                    const inst: any = await this.TargetModel.findByPk(instUUID) 
+                    await inst.destroy()
+    
+                    await this.Stash.create(revision.dataValues)
+                    await revision.destroy()
 
-            if (record.state === States.CREATED) {
-                const inst: any = await this.TargetModel.findByPk(targetObjUUID) 
-                await inst.destroy()
- 
-                await this.Stash.create(record.dataValues)
-                await record.destroy()
+                } else if (revision.state === States.DELETED) {
+                    const data: any = this.transformToInstAttrs(revision.dataValues)
+                    await this.TargetModel.create(data)                
 
-            } else if (record.state === States.DELETED) {
-                const data: any = this.transformToInstAttrs(record.dataValues)
-                await this.TargetModel.create(data)                
+                    await this.Stash.create(revision.dataValues)
+                    await revision.destroy()
 
-                await this.Stash.create(record.dataValues)
-                await record.destroy()
+                } else if (revision.state === States.UPDATED) { 
+                    await this.Stash.create(revision.dataValues)
+                    await revision.destroy()
 
-            } else if (record.state === States.UPDATED) { 
-                await this.Stash.create(record.dataValues)
-                await record.destroy()
+                    const latestRecord: any = await this.Model.findOne({ 
+                        where: { 
+                            [this.instUUIDFieldName]: instUUID, 
+                        },
+                        order: [['date', 'DESC']]
+                    }) 
 
-                const latestRecord: any = await this.Model.findOne({ 
-                    where: { 
-                        [this.instUUIDFieldName]: targetObjUUID, 
-                    },
-                    order: [['date', 'DESC']]
-                }) 
+                    const inst: any = await this.TargetModel.findByPk(instUUID)
+                    await inst.update(latestRecord.dataValues) 
+                }
 
-                const inst: any = await this.TargetModel.findByPk(targetObjUUID)
-                await inst.update(latestRecord.dataValues) 
+                await this.offsetHooks(1)
             }
-
-            await this.offsetHooks(1)
-        }
+        }        
     }
 
-    public async stashTo(recordUUID: string): Promise<void> {
-        const stepsToRecord = await this.calculateStepsTo(recordUUID, this.Model, true) 
-        await this.stash({ recordsCount: stepsToRecord })
+    public async stashTo(opts: goToVscOpts): Promise<void> {
+        const instsUUIDs = opts.instsUUIDs || 'common context'
+        const revisionUUID: string = opts.revisionUUID!
+        const revisionsCount = await this.calculateStepsTo(revisionUUID, this.Model, true) 
+
+        await this.stash({ instsUUIDs: instsUUIDs, revisionsCount: revisionsCount })
     }
     
-    public async stashAll(): Promise<void> {
-        const stepsToRecord = await this.Model.count()
-        await this.stash({ recordsCount: stepsToRecord }) 
+    public async stashAll(opts: broadcastVscOpts): Promise<void> {
+        const instsUUIDs = opts.instsUUIDs || 'common context'
+        const revisionsCount = await this.Model.count()
+
+        await this.stash({ instsUUIDs: instsUUIDs, revisionsCount: revisionsCount }) 
     }
      
     public async pop(opts: vscOpts): Promise<void> {
-        const recordsCount = opts.recordsCount || 1
-        const context = opts.context || 'all' 
+        const recordsCount = opts.revisionsCount || 1
+        const instsUUIDs = opts.instsUUIDs || 'common context' 
         
-        let records: Array<any> = []
+        let contexts: Array<Array<any>> = []
 
-        if (context === 'all') {
-            records = await this.Stash.findAll({ 
+        if (instsUUIDs === 'common context') {
+            contexts[0] = await this.Stash.findAll({ 
                 limit: recordsCount, 
                 order: ['date'] 
             })
         } else {
-            for (const uuid of context) {
-                const buff = await this.Stash.findAll({
+            for (const instUUID of instsUUIDs) {
+                const context = await this.Stash.findAll({
                     limit: recordsCount, 
                     order: ['date'],
                     where: {
-                        [this.instUUIDFieldName]: uuid
+                        [this.instUUIDFieldName]: instUUID
                     }
                 })
-                records = records.concat(buff)
+                contexts.push(context)
             }
        }
-         
-        for (const record of records) {
-            const targetObjUUID = record[this.instUUIDFieldName]
+        
+        for (const context of contexts) {
+            for (const revision of context) {
+                const instUUID = revision[this.instUUIDFieldName]
 
-            if (record.state === States.CREATED) {
-                const data: any = this.transformToInstAttrs(record.dataValues)
-                await this.TargetModel.create(data)
-            } else if (record.state === States.DELETED) {
-                const inst: any = await this.TargetModel.findByPk(targetObjUUID)
-                await inst.destroy()
-            } else if (record.state === States.UPDATED) { 
-                const data: any = this.transformToInstAttrs(record.dataValues)
-                const inst: any = await this.TargetModel.findByPk(targetObjUUID)
-                await inst.update(data)
+                if (revision.state === States.CREATED) {
+                    const data: any = this.transformToInstAttrs(revision.dataValues)
+                    await this.TargetModel.create(data)
+                } else if (revision.state === States.DELETED) {
+                    const inst: any = await this.TargetModel.findByPk(instUUID)
+                    await inst.destroy()
+                } else if (revision.state === States.UPDATED) { 
+                    const data: any = this.transformToInstAttrs(revision.dataValues)
+                    const inst: any = await this.TargetModel.findByPk(instUUID)
+                    await inst.update(data)
+                }
+                await this.offsetHooks(1)
+                await this.Model.create(revision.dataValues)
+                await revision.destroy()
             }
-            await this.offsetHooks(1)
-            await this.Model.create(record.dataValues)
-            await record.destroy()
         }
+        
     } 
 
-    public async popTo(recordUUID: string): Promise<void> {
-        const stepsToRecord = await this.calculateStepsTo(recordUUID, this.Stash) 
-        await this.pop({ recordsCount: stepsToRecord })
+    public async popTo(opts: goToVscOpts): Promise<void> {
+        const instsUUIDs = opts.instsUUIDs || 'common context'
+        const revisionUUID: string = opts.revisionUUID!
+        const revisionsCount = await this.calculateStepsTo(revisionUUID, this.Stash) 
+
+        await this.pop({ instsUUIDs: instsUUIDs, revisionsCount: revisionsCount })
     }
     
-    public async popAll(): Promise<void> {
+    public async popAll(opts: broadcastVscOpts): Promise<void> {
+        const instsUUIDs = opts.instsUUIDs || 'common context' 
         const stepsToRecord = await this.Stash.count()
-        await this.pop({ recordsCount: stepsToRecord })
+
+        await this.pop({instsUUIDs: instsUUIDs, revisionsCount: stepsToRecord })
     }
 
     private async calculateStepsTo(instUUID: string, Model: ModelStatic<Model<any, any>>, desc: boolean = false): Promise<number> {
@@ -235,7 +259,7 @@ export class ModelRevision {
         return Stash
     }
 
-    private registerHooks(): void { 
+    private registerHooks(): void {
         this.TargetModel.afterCreate(async (inst: any) => { 
             await this.makeRevisionRecord(inst, States.CREATED)
         })

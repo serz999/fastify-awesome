@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import Fastify, { FastifyInstance } from 'fastify'
 import { productsRoute, usersRoute, ordersRoute } from './routes'
+
 const PORT: number = Number(process.env.PORT)!
 const HOST: string = process.env.HOST!
 

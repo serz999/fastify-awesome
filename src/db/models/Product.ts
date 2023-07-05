@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import { Sequelize, DataTypes, InferAttributes, InferCreationAttributes, Model} from 'sequelize'
-const sequelize = new Sequelize(process.env['DB_URI'])
+import { sequelize } from '../sequelizeInst'
+import { ModelRevision } from '../revisions'
 
 interface ProductModel extends Model<InferAttributes<ProductModel>, InferCreationAttributes<ProductModel>> {
     id: number
@@ -17,3 +18,4 @@ export const Product = sequelize.define(
     },
     { timestamps: false, tableName: 'Product' }
 )
+

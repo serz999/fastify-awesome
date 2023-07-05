@@ -2,7 +2,7 @@ import 'dotenv/config'
 import { Sequelize, DataTypes, InferAttributes, InferCreationAttributes, Model,} from 'sequelize'
 import { Product } from './Product'
 import { User } from './User'
-const sequelize = new Sequelize(process.env['DB_URI'])
+import { sequelize } from '../sequelizeInst'
 
 interface Order extends Model<InferAttributes<Order>, InferCreationAttributes<Order>> {
     id: number

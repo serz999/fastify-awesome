@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import { Sequelize, DataTypes, Model, CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
-const sequelize = new Sequelize(process.env['DB_URI'])
+import { sequelize } from '../sequelizeInst'
 
 interface UserModel extends Model<InferAttributes<UserModel>, InferCreationAttributes<UserModel>> {
     id: CreationOptional<number>;
