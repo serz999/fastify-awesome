@@ -2,6 +2,7 @@
     "loader": "ts-node/esm",
     "extensions": ["ts", "tsx"],
     "spec": [
+      "./src/**/spec/*.spec.*", 
       "./spec/**/*.spec.*"
     ],
     "watch-files": [

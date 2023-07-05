@@ -1,6 +1,6 @@
 import { expect } from "chai"
 import sinon from "sinon"
-
+import { ModelRevision } from '../ModelRevision'   
 
 describe('ModelRevision', function () {
     describe('registerHooks',  function () {
@@ -9,7 +9,7 @@ describe('ModelRevision', function () {
         })
 
         it('should make a record to the table of revisions when happened delete of object', async function () {
-        
+            
         })
 
         it('should make a record to the table of revisions when happened update of object', async function () {
