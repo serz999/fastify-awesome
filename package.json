@@ -11,9 +11,9 @@
   "version": "1.0.0",
   "main": "dist/app.js",
   "scripts": {
+    "test": "npx mocha",
     "build": "rm -r ./dist & npx tsc -b ./tsconfig.json && cp -r ./src/db/config ./dist/db/",
     "start": "npm run build && node ./dist/app.js",
-    "test": "npx mocha",
     "migrate": "npx sequelize-cli db:migrate",
     "seed": "npx sequelize-cli db:seed:all",
     "undoall": "npx sequelize-cli db:migrate:undo:all",
