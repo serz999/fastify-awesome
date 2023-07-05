@@ -15,12 +15,12 @@ receivers:
       smarthost: smtp.gmail.com:587
       auth_username: testzelyakov@gmail.com
       auth_identity: testzelyakov@gmail.com
-      auth_password: ioadfdyuymqlphxq
+      auth_password: ldlanpviqxzjfwiz
       send_resolved: true
 
 inhibit_rules:
   - source_match:
-      severity: 'critical'
+      severity: 'adds'
     target_match:
       severity: 'warning'
     equal: ['alertname', 'dev', 'instance']

@@ -5,6 +5,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node ./dist/jwt-fastify/server.js",
+    "test": "tap ./dist/test/**.test.js",
     "tsc:w": "tsc -w"
   },
   "keywords": [],
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@types/koa-router": "^7.4.4",
     "@types/node": "^20.3.2",
+    "tap": "^16.3.7",
     "typescript": "^5.1.5"
   }
 }

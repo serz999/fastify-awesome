@@ -13,7 +13,7 @@ alerting:
   alertmanagers:
     - static_configs:
       - targets: 
-        - 'localhost:9093'
+        - alertmanager:9093
         # Alertmanager's default port is 9093
         
 

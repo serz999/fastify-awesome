@@ -1,8 +1,8 @@
 pg_number_of_users:
-  cache_seconds: 60
+  cache_seconds: 10
   query: 'SELECT COUNT (*) FROM "User"'
 
 pg_user_temp:
-  cache_seconds: 60
+  cache_seconds: 10
   query: 'SELECT AVG (user_age) FROM "User"'
   
