@@ -1,5 +1,7 @@
 import { FastifyInstance } from "fastify";
-import { userController } from "../controllers"
+import { UserController } from "../controllers"
+
+const userController = new UserController()
 
 export async function usersRoute(fastify: FastifyInstance, options: Object) {
     

@@ -1,41 +1,8 @@
-import { ModelStatic, Model } from "sequelize"
-import { FastifyReply } from "fastify/types/reply"
+import { CRUD, Request, Response, ObjectsArrayWrap } from "./types"
 
-type Request = any
+export abstract class BaseController implements CRUD {
 
-type Response = FastifyReply
-
-interface ObjectsWrapp {
-    totalCount: number,
-    objects: Array<Object>
-}
-
-interface CRUD {
-    
-    add(request: Request , response: Response): Promise<Object>
-    
-    getAll(request: Request , response: Response): Promise<ObjectsWrapp> 
-    
-    getById(request: Request , response: Response): Promise<Object> 
-    
-    update(request: Request, response: Response): Promise<Object>   
-
-    delete(request: Request, response: Response): Promise<Object>
-}
-
-interface Auditable {
-
-    getLog(request: Request , response: Response): Promise<Object>
-}
-
-export class BaseController implements CRUD {
-
-    protected Model: ModelStatic<Model<any, any>>
-
-    constructor(Model: ModelStatic<Model<any, any>>) {
-        this.Model = Model
-    }
-
+    protected Model: any = {} 
 
     async add(request: Request , response: Response): Promise<Object> { 
         const inst = await this.Model.create(request.body) 
@@ -43,7 +10,7 @@ export class BaseController implements CRUD {
         return inst
     }
 
-    async getAll(request: Request , response: Response): Promise<ObjectsWrapp> {
+    async getAll(request: Request , response: Response): Promise<ObjectsArrayWrap> {
         const allInsts = await this.Model.findAll()
 
         return {

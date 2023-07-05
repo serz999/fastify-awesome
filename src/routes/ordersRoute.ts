@@ -1,5 +1,7 @@
 import { FastifyInstance } from "fastify"
-import { orderController } from '../controllers'
+import { OrderController } from '../controllers'
+
+const orderController = new OrderController()
 
 export async function ordersRoute(fastify: FastifyInstance, options: Object) {
 

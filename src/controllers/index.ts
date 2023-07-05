@@ -1,6 +1,5 @@
-import * as models from "../db/models";
-import { BaseController } from "./BaseController";
-
-export const productController = new BaseController(models.Product) 
-export const userController = new BaseController(models.User) 
-export const orderController = new BaseController(models.Order)
+export * from './BaseController'
+export * from './OrderController'
+export * from './ProductController'
+export * from './UserController'
+export * from './types'

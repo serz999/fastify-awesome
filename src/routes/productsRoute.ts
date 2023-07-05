@@ -1,5 +1,7 @@
 import { FastifyInstance } from "fastify"
-import { productController } from "../controllers"
+import { ProductController } from "../controllers"
+
+const productController =  new ProductController()
 
 export async function productsRoute(fastify: FastifyInstance, options: Object) {
 
