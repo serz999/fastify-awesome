@@ -1,8 +1,7 @@
 import { FastifyInstance } from "fastify"
 import { orderController } from '../controllers'
 
-
-async function ordersRoute(fastify: FastifyInstance, options: Object) {
+export async function ordersRoute(fastify: FastifyInstance, options: Object) {
 
     fastify.get('/api/orders', orderController.getAll.bind(orderController))
 
@@ -15,5 +14,3 @@ async function ordersRoute(fastify: FastifyInstance, options: Object) {
     fastify.delete('/api/orders/:id', orderController.delete.bind(orderController))
 }
 
-
-export { ordersRoute }

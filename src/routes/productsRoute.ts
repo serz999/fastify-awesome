@@ -1,8 +1,7 @@
 import { FastifyInstance } from "fastify"
 import { productController } from "../controllers"
 
-
-async function productsRoute(fastify: FastifyInstance, options: Object) {
+export async function productsRoute(fastify: FastifyInstance, options: Object) {
 
     fastify.get('/api/products', productController.getAll.bind(productController))
 
@@ -14,5 +13,3 @@ async function productsRoute(fastify: FastifyInstance, options: Object) {
 
     fastify.delete('/api/products/:id', productController.delete.bind(productController))
 }
-
-export { productsRoute }

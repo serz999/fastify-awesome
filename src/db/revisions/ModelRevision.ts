@@ -13,7 +13,7 @@ interface vscOpts {
     recordsCount?: number
 }
 
-class ModelRevision {
+export class ModelRevision {
 
     public TargetModel: ModelStatic<Model<any, any>>
 
@@ -275,5 +275,3 @@ class ModelRevision {
     }
 }
 
-
-export { ModelRevision }

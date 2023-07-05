@@ -1,18 +1,18 @@
 import { DataTypes, QueryInterface, Transaction } from 'sequelize';
-import * as models from '../models';
+import * as revisions from '../revisions';
 
 
 export async function up(queryInterface: QueryInterface, Sequelize: any) {
   const t = await queryInterface.sequelize.transaction();
   try {
-    await queryInterface.createTable(models.userRevision.Model.name, models.userRevision.Model.getAttributes(), { transaction: t });
-    await queryInterface.createTable(models.userRevision.Stash.name, models.userRevision.Stash.getAttributes(), { transaction: t });
+    await queryInterface.createTable(revisions.userRevision.Model.name, revisions.userRevision.Model.getAttributes(), { transaction: t });
+    await queryInterface.createTable(revisions.userRevision.Stash.name, revisions.userRevision.Stash.getAttributes(), { transaction: t });
 
-    await queryInterface.createTable(models.productRevision.Model.name, models.productRevision.Model.getAttributes() ,{ transaction: t });
-    await queryInterface.createTable(models.productRevision.Stash.name, models.productRevision.Stash.getAttributes() ,{ transaction: t });
+    await queryInterface.createTable(revisions.productRevision.Model.name, revisions.productRevision.Model.getAttributes() ,{ transaction: t });
+    await queryInterface.createTable(revisions.productRevision.Stash.name, revisions.productRevision.Stash.getAttributes() ,{ transaction: t });
 
-    await queryInterface.createTable(models.orderRevision.Model.name, models.orderRevision.Model.getAttributes(), { transaction: t });
-    await queryInterface.createTable(models.orderRevision.Stash.name, models.orderRevision.Stash.getAttributes(), { transaction: t });
+    await queryInterface.createTable(revisions.orderRevision.Model.name, revisions.orderRevision.Model.getAttributes(), { transaction: t });
+    await queryInterface.createTable(revisions.orderRevision.Stash.name, revisions.orderRevision.Stash.getAttributes(), { transaction: t });
 
     await t.commit();
 
@@ -24,14 +24,14 @@ export async function up(queryInterface: QueryInterface, Sequelize: any) {
 export async function down(queryInterface: QueryInterface, Sequelize: any) {
   const t = await queryInterface.sequelize.transaction();
   try {
-    await queryInterface.dropTable(models.userRevision.Model.name, { cascade: true, transaction: t });
-    await queryInterface.dropTable(models.userRevision.Stash.name, { cascade: true, transaction: t });
+    await queryInterface.dropTable(revisions.userRevision.Model.name, { cascade: true, transaction: t });
+    await queryInterface.dropTable(revisions.userRevision.Stash.name, { cascade: true, transaction: t });
     
-    await queryInterface.dropTable(models.productRevision.Model.name, { cascade: true, transaction: t });
-    await queryInterface.dropTable(models.productRevision.Stash.name, { cascade: true, transaction: t });
+    await queryInterface.dropTable(revisions.productRevision.Model.name, { cascade: true, transaction: t });
+    await queryInterface.dropTable(revisions.productRevision.Stash.name, { cascade: true, transaction: t });
     
-    await queryInterface.dropTable(models.orderRevision.Model.name, { cascade: true, transaction: t });
-    await queryInterface.dropTable(models.orderRevision.Stash.name, { cascade: true, transaction: t });
+    await queryInterface.dropTable(revisions.orderRevision.Model.name, { cascade: true, transaction: t });
+    await queryInterface.dropTable(revisions.orderRevision.Stash.name, { cascade: true, transaction: t });
 
     await t.commit();
 

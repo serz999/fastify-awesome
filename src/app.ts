@@ -1,9 +1,6 @@
 import 'dotenv/config'
 import Fastify, { FastifyInstance } from 'fastify'
-import { productsRoute } from './routes/product.route'
-import { usersRoute } from './routes/user.route'
-import { ordersRoute } from './routes/order.route'
-
+import { productsRoute, usersRoute, ordersRoute } from './routes'
 const PORT: number = Number(process.env.PORT)!
 const HOST: string = process.env.HOST!
 
@@ -15,7 +12,7 @@ fastify.register(productsRoute)
 fastify.register(usersRoute)
 fastify.register(ordersRoute)
 
-const runServer = async () => {
+const run = async () => {
     try {
         await fastify.listen({ port: PORT, host: HOST })
     } catch (err) {
@@ -24,4 +21,4 @@ const runServer = async () => {
     }
 }
 
-runServer()
+run()
