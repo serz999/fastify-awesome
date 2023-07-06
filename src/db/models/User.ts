@@ -1,6 +1,5 @@
 import 'dotenv/config'
 import { Sequelize, DataTypes, Model, CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
-import { sequelize } from '../sequelizeInst'
 
 interface UserModel extends Model<InferAttributes<UserModel>, InferCreationAttributes<UserModel>> {
     id: CreationOptional<number>;
@@ -11,7 +10,7 @@ interface UserModel extends Model<InferAttributes<UserModel>, InferCreationAttri
     age: number;
 }
 
-export const User = sequelize.define(
+export const UserConstructor = (sequelize: Sequelize) => sequelize.define(
     'User',
     {
         id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true }, 

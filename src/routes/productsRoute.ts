@@ -14,4 +14,6 @@ export async function productsRoute(fastify: FastifyInstance, options: Object) {
     fastify.patch('/api/products/:id', productController.update.bind(productController))
 
     fastify.delete('/api/products/:id', productController.delete.bind(productController))
+
+    fastify.post('/api/products/revisions', productController.revisionsMethodsEval.bind(productController))
 }

@@ -20,7 +20,6 @@ interface goToVscOpts {
 
 interface broadcastVscOpts {
     instsUUIDs?: string | Array<string>
-    revisionUUID?: string
 }
 
 export class ModelRevision {

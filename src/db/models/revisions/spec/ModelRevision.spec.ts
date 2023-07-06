@@ -2,7 +2,6 @@ import { expect } from "chai"
 import sinon from "sinon"
 import { ModelRevision } from '../ModelRevision'   
 import { faker } from "@faker-js/faker"
-import { productRevision } from ".."
 
 function modelFactory(attrs: Object) {}
 

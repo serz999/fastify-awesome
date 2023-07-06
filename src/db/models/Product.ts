@@ -1,7 +1,5 @@
 import 'dotenv/config'
 import { Sequelize, DataTypes, InferAttributes, InferCreationAttributes, Model} from 'sequelize'
-import { sequelize } from '../sequelizeInst'
-import { ModelRevision } from '../revisions'
 
 interface ProductModel extends Model<InferAttributes<ProductModel>, InferCreationAttributes<ProductModel>> {
     id: number
@@ -9,7 +7,7 @@ interface ProductModel extends Model<InferAttributes<ProductModel>, InferCreatio
     price: number 
 }
 
-export const Product = sequelize.define(
+export const ProductConstructor = (sequelize: Sequelize) => sequelize.define(
     'Product',
     {
         id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
